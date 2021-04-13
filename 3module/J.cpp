@@ -30,7 +30,7 @@ int main() {
                     iter = goblins.begin();
                 }
 
-                if (size % 2 == 0 && size > 2) {
+                if (size % 2 != 0 && size > 2) {
                     iter--;
                 }
 
@@ -48,9 +48,9 @@ int main() {
                     goblins.insert(iter, num);
                     size++;
 
-                    if (size % 2 == 1 && size > 2) {
-                        iter++;
-                    }
+//                    if (size % 2 == 1 && size > 2) {
+//                        iter++;
+//                    }
 
                 }
 
@@ -65,7 +65,7 @@ int main() {
                 if (size == 1) {
                     iter = goblins.begin();
                 } else {
-                    if (size % 2 == 0) {
+                    if (size % 2 != 0) {
                         iter--;
                     }
                 }
