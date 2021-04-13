@@ -1,0 +1,1 @@
+//Find minimum on next k, mark number of this numbers, next - delete from number, if prev was minimum, if it became 0 - find minimum start from new one, if it old - compare with new one.
