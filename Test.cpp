@@ -2,23 +2,16 @@
 
 #include <vector>
 #include <deque>
+#include <string>
 
 using namespace std;
 
 int main() {
-    deque<int> goblins;
-    auto iter = goblins.begin();
-    goblins.push_back(0);
-    goblins.push_back(1);
-    goblins.push_back(2);
-    goblins.push_back(3);
-    goblins.push_back(4);
+    string str = "gd";
 
-    iter++;
-    iter++;
-    iter++;
+    int num = stoi(str);
 
-    goblins.insert(iter, 5);
+    printf("%d", num);
 
     return 0;
 }

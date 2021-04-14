@@ -1,4 +1,6 @@
 
+//3module/J.cpp
+
 #include <iostream>
 #include <deque>
 #include <string>
@@ -48,16 +50,20 @@ int main() {
                     goblins.insert(iter, num);
                     size++;
 
-//                    if (size % 2 == 1 && size > 2) {
-//                        iter++;
-//                    }
+                    if (size % 2 != 1 && size > 2) {
+                        iter++;
+                    }
 
                 }
 
                 break;
             }
             case '-': {
+                if(size == 0){
+                    break;
+                }
                 size--;
+
                 int res = goblins.at(size);
                 goblins.pop_back();
                 printf("%d\n", res);
@@ -65,7 +71,7 @@ int main() {
                 if (size == 1) {
                     iter = goblins.begin();
                 } else {
-                    if (size % 2 != 0) {
+                    if (size % 2 != 0 && size > 0) {
                         iter--;
                     }
                 }
@@ -80,7 +86,7 @@ int main() {
         for (int j = 0; j < size; ++j) {
             printf("%d ", goblins.at(j));
         }
-        printf("\n --");
+        printf("\n -- \n");
 
     }
 
