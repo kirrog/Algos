@@ -1,61 +1,31 @@
 
 #include <vector>
 #include <iostream>
+#include <limits>
 
 using namespace std;
 
-int find_min(vector<int> &data, int tree_l_bord, int tree_r_bord) {
-    if (tree_l_bord == tree_r_bord) {
-        return data[tree_l_bord];
-    } else if (tree_r_bord - tree_l_bord == 1) {
-        return min(data[tree_l_bord], data[tree_r_bord]);
+void build_min_tree(vector<int> &data, vector<int> &tree, int val, int tree_left_border, int tree_right_border) {
+    if (tree_left_border == tree_right_border) {
+        tree[val] = data[tree_left_border];
     } else {
-        int mid = (tree_l_bord + tree_r_bord) / 2;
-        int l = find_min(data, tree_l_bord, mid);
-        int r = find_min(data, mid + 1, tree_r_bord);
-        return min(l, r);
+        int tree_mid = (tree_left_border + tree_right_border) / 2;
+        build_min_tree(data, tree, val * 2, tree_left_border, tree_mid);
+        build_min_tree(data, tree, val * 2 + 1, tree_mid + 1, tree_right_border);
+        tree[val] = min(tree[val * 2], tree[val * 2 + 1]);
     }
 }
 
-void update_tree(vector<int> &tree, vector<int> &links, int pos, int val, int tree_l_bord, int tree_r_bord) {
-    if (links[pos] == -1) {
-        links[pos] = pos + 1;
-    }
-    int p = links[pos];
-    tree[p] = val;
-    while (p > 1 && tree[p] < tree[p / 2]) {
-        swap(tree[p], tree[p / 2]);
-        int sec_pos = -1;
-        for (int i = 0; i < links.size(); ++i) {
-            if (links[i] == p / 2) {
-                sec_pos = i;
-            }
-        }
-        swap(links[pos], links[sec_pos]);
-        p = p / 2;
-    }
-    while (((p * 2 < tree.size() && tree[p] > tree[p * 2]) || (p * 2 + 1 < tree.size() && tree[p] > tree[p * 2 + 1]))) {
-        if ((p * 2 < tree.size() && tree[p] > tree[p * 2]) && tree[p * 2] < tree[p * 2 + 1]) {
-            swap(tree[p], tree[p * 2]);
-            int sec_pos = -1;
-            for (int i = 0; i < links.size(); ++i) {
-                if (links[i] == p * 2) {
-                    sec_pos = i;
-                }
-            }
-            swap(links[pos], links[sec_pos]);
-            p = p * 2;
-        } else if ((p * 2 + 1 < tree.size() && tree[p] > tree[p * 2 + 1]) && tree[p * 2] >= tree[p * 2 + 1]) {
-            swap(tree[p], tree[p * 2 + 1]);
-            int sec_pos = -1;
-            for (int i = 0; i < links.size(); ++i) {
-                if (links[i] == p * 2 + 1) {
-                    sec_pos = i;
-                }
-            }
-            swap(links[pos], links[sec_pos]);
-            p = p * 2 + 1;
-        }
+int find_min(vector<int> &tree, int v_p, int l_b, int r_b, int t_l_b, int t_r_b) {
+    if (t_r_b < l_b || t_l_b > r_b) {
+        return std::numeric_limits<int>::max();
+    } else if (t_l_b >= l_b && t_r_b <= r_b) {
+        return tree[v_p];
+    } else {
+        int t_m = (t_l_b + t_r_b) / 2;
+        int l = find_min(tree, v_p * 2, l_b, min(r_b, t_m), t_l_b, t_m);
+        int r = find_min(tree, v_p * 2 + 1, max(l_b, t_m + 1), r_b, t_m + 1, t_r_b);
+        return min(l, r);
     }
 }
 
@@ -65,18 +35,21 @@ int main() {
     cin >> order;
     cin >> size;
 
-    vector<int> links(size, -1);
-    vector<int> tree(size + 1, INT32_MAX);
+    vector<int> data(order);
+    vector<int> tree(order * 3);
 
     for (int i = 0; i < order; ++i) {
-        int elem;
-        cin >> elem;
-        update_tree(tree, links, i % size, elem, 0, size - 1);
-        if (i >= size - 1) {
-            int res = tree[1];
-            printf("%d ", res);
-        }
+        cin >> data[i];
     }
+
+    build_min_tree(data, tree, 1, 0, order - 1);
+
+    for (int i = 0, j = size - 1; j < order; ++i, j++) {
+        int res = find_min(tree, 1, i, j, 0, order - 1);
+        cout << res << " ";
+    }
+
+    cout << std::endl;
 
     return 0;
 }
