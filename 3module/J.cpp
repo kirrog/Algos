@@ -1,93 +1,149 @@
-
-//3module/J.cpp
-
 #include <iostream>
 #include <deque>
 #include <string>
 
 using namespace std;
 
+class CustomNode {
+public:
+    CustomNode *next;
+    CustomNode *prev;
+    int val;
+
+    CustomNode(CustomNode *nextIn = nullptr,
+               CustomNode *prevIn = nullptr,
+               int valIn = 0) {
+        next = nextIn;
+        prev = prevIn;
+        val = valIn;
+    }
+};
+
+class CustomList {
+public:
+    CustomNode *head;
+    CustomNode *tail;
+    CustomNode *mid;
+
+    int size;
+
+    CustomList(CustomNode *headIn = nullptr,
+               CustomNode *tailIn = nullptr,
+               CustomNode *midIn = nullptr,
+               int sizeIn = 0) {
+        head = headIn;
+        tail = tailIn;
+        mid = midIn;
+        size = sizeIn;
+    }
+
+};
+
+void push_front(CustomList *customList, int val) {
+    customList->size++;
+    if (customList->head != nullptr) {
+        auto custNode = new CustomNode(customList->head, nullptr, val);
+        customList->head->prev = custNode;
+        customList->head = custNode;
+        if (customList->size % 2 == 1 && customList->size > 1) {
+            if (customList->mid->prev != nullptr) {
+                customList->mid = customList->mid->prev;
+            }
+        }
+    } else {
+        auto custNode = new CustomNode(nullptr, nullptr, val);
+        customList->head = custNode;
+        customList->mid = custNode;
+        customList->tail = custNode;
+    }
+}
+
+void push_mid(CustomList *customList, int val) {
+    customList->size++;
+    if (customList->mid == nullptr) {
+        auto custNode = new CustomNode(nullptr, nullptr, val);
+        customList->mid = custNode;
+        customList->tail = custNode;
+        customList->head = custNode;
+    } else {
+        auto custNode = new CustomNode(nullptr, nullptr, val);
+
+        if ((customList->size) % 2 == 0 && customList->size > 1) {
+            custNode->prev = customList->mid->prev;
+            customList->mid->prev = custNode;
+            custNode->next = customList->mid;
+            if (custNode->prev != nullptr) {
+                custNode->prev->next = custNode;
+            } else {
+                customList->head = custNode;
+            }
+        } else {
+            custNode->prev = customList->mid->prev;
+            custNode->next = customList->mid;
+            customList->mid->prev = custNode;
+            if (custNode->prev != nullptr) {
+                custNode->prev->next = custNode;
+            } else {
+                customList->head = custNode;
+            }
+            customList->mid = custNode;
+        }
+    }
+}
+
+int pop_back(CustomList *customList) {
+
+    customList->size--;
+    int res = customList->tail->val;
+
+    if (customList->size == 0) {
+        customList->head = nullptr;
+        customList->tail = nullptr;
+        customList->mid = nullptr;
+    } else {
+        if (customList->size % 2 == 1) {
+            customList->mid = customList->mid->prev;
+        }
+
+        customList->tail = customList->tail->prev;
+        customList->tail->next = nullptr;
+    }
+
+    return res;
+
+}
+
 int main() {
     int gobOrdNum;
     cin >> gobOrdNum;
 
-    deque<int> goblins;
-
-    auto iter = goblins.begin(); // use this iterator for vip goblins
-
-    int size = 0;
+    auto *goblins = new CustomList();
 
     for (int i = 0; i < gobOrdNum; ++i) {
         string sign;
         cin >> sign;
         switch (sign.at(0)) {
             case '+': {
-                cin >> sign;
-                int num = stoi(sign);
-
-                goblins.push_front(num);
-                size++;
-
-                if (size == 1) {
-                    iter = goblins.begin();
-                }
-
-                if (size % 2 != 0 && size > 2) {
-                    iter--;
-                }
-
+                string num;
+                cin >> num;
+                push_front(goblins, stoi(num));
                 break;
             }
             case '*': {
-                cin >> sign;
-                int num = stoi(sign);
-
-                if (size == 0) {
-                    goblins.push_front(num);
-                    size++;
-                    iter = goblins.begin();
-                } else {
-                    goblins.insert(iter, num);
-                    size++;
-
-                    if (size % 2 != 1 && size > 2) {
-                        iter++;
-                    }
-
-                }
-
+                string num;
+                cin >> num;
+                push_mid(goblins, stoi(num));
                 break;
             }
             case '-': {
-                if(size == 0){
-                    break;
-                }
-                size--;
-
-                int res = goblins.at(size);
-                goblins.pop_back();
+                int res = pop_back(goblins);
                 printf("%d\n", res);
-
-                if (size == 1) {
-                    iter = goblins.begin();
-                } else {
-                    if (size % 2 != 0 && size > 0) {
-                        iter--;
-                    }
-                }
-
                 break;
             }
             default: {
                 break;
             }
         }
-        printf("\n -- \n");
-        for (int j = 0; j < size; ++j) {
-            printf("%d ", goblins.at(j));
-        }
-        printf("\n -- \n");
-
     }
 
     return 0;

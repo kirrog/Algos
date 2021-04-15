@@ -3,4 +3,4 @@ project(Algos)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(Algos 3module/L.cpp)
+add_executable(Algos 3module/J.cpp)

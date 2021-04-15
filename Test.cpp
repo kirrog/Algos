@@ -7,11 +7,15 @@
 using namespace std;
 
 int main() {
-    string str = "gd";
+    deque<int> gob;
 
-    int num = stoi(str);
+    auto iter = gob.begin();
 
-    printf("%d", num);
+    iter--;
+    iter--;
+    iter--;
+
+//    gob.insert(iter, 2);
 
     return 0;
 }
