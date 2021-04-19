@@ -30,30 +30,36 @@ int main() {
         int order;
         cin >> order;
         if (order > 0) {
-            bool isAdded = false;
-            for (auto mem = free.begin(); mem != free.end(); ++mem) {
-                if (mem->size > order) {
+            if (!free.empty()) {
+                auto mem = free.begin();
+                if (mem->size >= order) {
                     MemPart mem_n = MemPart(i + 1, mem->start, order);
                     mem->start += order;
                     mem->size -= order;
+                    if (mem->size == 0) {
+                        free.erase(mem);
+                    } else {
+                        MemPart memPart = *mem;
+                        free.erase(mem);
+                        bool isNameInsert = false;
+                        memPart.num = i + 1;
+                        for (auto mem_in = free.begin(); mem_in != free.end(); ++mem_in) {
+                            if (mem_in->size <= memPart.size) {
+                                free.insert(mem_in, memPart);
+                                isNameInsert = true;
+                                break;
+                            }
+                        }
+                        if (!isNameInsert) {
+                            free.push_back(memPart);
+                        }
+                    }
                     uses.push_back(mem_n);
                     printf("%d\n", mem_n.start);
-                    isAdded= true;
-                    break;
-                } else if (mem->size == order) {
-                    MemPart mem_n = *mem;
-                    free.erase(mem);
-                    mem_n.num = i + 1;
-                    uses.push_back(mem_n);
-                    printf("%d\n", mem_n.start);
-                    isAdded= true;
-                    break;
+                    continue;
                 }
             }
-            if (!isAdded) {
-                printf("%d\n", -1);
-            }
-
+            printf("%d\n", -1);
         } else {
             order = abs(order);
             MemPart memPart = MemPart(0, 0, 0);
@@ -70,8 +76,7 @@ int main() {
             int size = memPart.size;
 
 
-
-            if(size == 0){
+            if (size == 0) {
                 continue;
             }
 
@@ -93,18 +98,27 @@ int main() {
                 }
             }
 
-            if(isPrev){
+            if (isPrev) {
                 free.erase(prev);
             }
-            if(isNext){
+            if (isNext) {
                 free.erase(next);
             }
 
             if (memPart.start + memPart.size > 0) {
+                bool isNameInsert = false;
                 memPart.num = i + 1;
-                free.push_back(memPart);
+                for (auto mem = free.begin(); mem != free.end(); ++mem) {
+                    if (mem->size <= memPart.size) {
+                        free.insert(mem, memPart);
+                        isNameInsert = true;
+                        break;
+                    }
+                }
+                if (!isNameInsert) {
+                    free.push_back(memPart);
+                }
             }
-
         }
     }
 }
