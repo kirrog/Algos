@@ -14,26 +14,31 @@ struct MemPart {
     MemPart *next;
     MemPart *prev;
 
-    MemPart(bool free, int start, int size) {
+    MemPart(bool free, int start, int size, MemPart *prev, MemPart *next) {
         this->free = free;
         this->start = start;
         this->size = size;
         pos = -1;
-        prev = nullptr;
-        next = nullptr;
+        this->prev = prev;
+        if (prev) {
+            prev->next = this;
+        }
+        this->next = next;
+        if (next) {
+            next->prev = this;
+        }
+    }
+
+    void remove() {
+        if (next) {
+            next->prev = prev;
+        }
+        if (prev) {
+            prev->next = next;
+        }
     }
 
 };
-
-void linkingMemParts(MemPart *left, MemPart *right) {
-    if (left) {
-        left->next = right;
-    }
-    if (right) {
-        right->prev = left;
-    }
-}
-
 
 struct CustomHeap {
     vector<MemPart *> heapData;
@@ -41,8 +46,6 @@ struct CustomHeap {
     void deleteElemFromHeap(MemPart *mem);
 
     void addElemToHeap(MemPart *memPart);
-
-    void upgradeElemInHeap(MemPart *mem, int order);
 
     int parent(int num) {
         return (num - 1) / 2;
@@ -56,8 +59,6 @@ struct CustomHeap {
         return 2 * num + 2;
     }
 
-    bool transformUsedToFree(MemPart *memPart);
-
     void flowUp(int pos);
 
     void flowDown(int pos);
@@ -70,53 +71,37 @@ struct CustomHeap {
         MemPart *t = heapData[firPos];
         heapData[firPos] = heapData[secPos];
         heapData[secPos] = t;
-        int tint = heapData[firPos]->pos;
-        heapData[firPos]->pos = heapData[secPos]->pos;
-        heapData[secPos]->pos = tint;
+        heapData[firPos]->pos = firPos;
+        heapData[secPos]->pos = secPos;
+    }
+
+    bool compare(int posHigher, int posLess) {
+        return heapData[posHigher]->size > heapData[posLess]->size;
     }
 
 };
 
 void CustomHeap::flowUp(int pos) {
-    while (parent(pos) >= 0 && heapData[parent(pos)]->size < heapData[pos]->size) {
+    while (parent(pos) >= 0 && compare(pos, parent(pos))) {
         swapMemPart(parent(pos), pos);
         pos = parent(pos);
     }
 }
 
 void CustomHeap::flowDown(int pos) {
-    bool leftPos = left(pos) < heapData.size() &&
-                heapData[left(pos)]->size > heapData[pos]->size;
-    bool rightPos = right(pos) < heapData.size() &&
-                    heapData[right(pos)]->size > heapData[pos]->size;
-    while (left(pos) < heapData.size() &&
-           heapData[left(pos)]->size > heapData[pos]->size ||
-           right(pos) < heapData.size() &&
-           heapData[right(pos)]->size > heapData[pos]->size) {
-        if (left(pos) < heapData.size() &&
-            heapData[left(pos)]->size > heapData[pos]->size &&
-            right(pos) < heapData.size() &&
-            heapData[right(pos)]->size > heapData[pos]->size) {
-            if (heapData[left(pos)]->size < heapData[right(pos)]->size) {
-                swapMemPart(right(pos), pos);
-                pos = right(pos);
-            } else {
-                swapMemPart(left(pos), pos);
-                pos = left(pos);
-            }
-        } else if (left(pos) < heapData.size() &&
-                   heapData[left(pos)]->size > heapData[pos]->size) {
-            swapMemPart(left(pos), pos);
-            pos = left(pos);
-        } else if (right(pos) < heapData.size() &&
-                   heapData[right(pos)]->size > heapData[pos]->size) {
-            swapMemPart(right(pos), pos);
-            pos = right(pos);
+    while (true) {
+        int nPos = pos;
+        if (left(pos) < heapData.size() && compare(left(pos), nPos)) {
+            nPos = left(pos);
         }
-        leftPos = left(pos) < heapData.size() &&
-                  heapData[left(pos)]->size > heapData[pos]->size;
-        rightPos = right(pos) < heapData.size() &&
-                   heapData[right(pos)]->size > heapData[pos]->size;
+        if (right(pos) < heapData.size() && compare(right(pos), nPos)) {
+            nPos = right(pos);
+        }
+        if (nPos == pos) {
+            return;
+        }
+        swapMemPart(nPos, pos);
+        pos = nPos;
     }
 }
 
@@ -126,6 +111,7 @@ void CustomHeap::popCustomHeap(int pos) {
     }
     heapData.pop_back();
     if (!heapData.empty() && pos < heapData.size()) {
+        flowUp(pos);
         flowDown(pos);
     }
 }
@@ -142,82 +128,40 @@ void CustomHeap::deleteElemFromHeap(MemPart *mem) {
     delete mem;
 }
 
-bool CustomHeap::transformUsedToFree(MemPart *memPart) {
-    memPart->free = true;
-    bool res = true;
-
-    if (memPart->prev) {
-        if (memPart->prev->free) {
-            memPart->prev->size += memPart->size;
-            res = false;
-            if (memPart->next) {
-                MemPart *memPrev = memPart->prev;
-                memPrev->next = memPart->next;
-                memPart->next->prev = memPrev;
-            } else {
-                memPart->prev->next = nullptr;
-                flowUp(memPart->prev->pos);
-                delete memPart;
-                return res;
-            }
-        }
-    }
-    if (memPart->next) {
-        if (memPart->next->free) {
-            if (res) {
-                res = false;
-                memPart->next->size += memPart->size;
-                memPart->next->start = memPart->start;
-                if (memPart->prev) {
-                    MemPart *memNext = memPart->next;
-                    memNext->prev = memPart->prev;
-                    memPart->prev->next = memNext;
-                } else {
-                    memPart->next->prev = nullptr;
-                }
-                flowUp(memPart->next->pos);
-            } else {
-                memPart->prev->size += memPart->next->size;
-                if (memPart->next->next) {
-                    MemPart *memPrev = memPart->prev;
-                    memPrev->next = memPart->next->next;
-                    memPart->next->next->prev = memPrev;
-                } else {
-                    memPart->prev->next = nullptr;
-                }
-                deleteElemFromHeap(memPart->next);
-                flowUp(memPart->prev->pos);
-            }
-            delete memPart;
-        } else {
-            if (!res) {
-                delete memPart;
-            }
-        }
-    }
-    return res;
-}
-
-// used in main
-// adding used element in heap of free concatenate it with existed memory parts
 void CustomHeap::addElemToHeap(MemPart *memPart) {
-    bool hasntNeighbours = transformUsedToFree(memPart);
-    if (hasntNeighbours) {
-        pushCustomHeap(memPart);
-    }
-}
+    memPart->free = true;
 
-// used in main
-// change size and start of mem on order value and update heap
-void CustomHeap::upgradeElemInHeap(MemPart *mem, int order) {
-    mem->start += order;
-    mem->size -= order;
-    if (mem->size == 0) {
-        deleteElemFromHeap(mem);
-    } else {
-        int pos = mem->pos;
-        flowDown(pos);
+    bool prevFree = memPart->prev && memPart->prev->free;
+    bool nextFree = memPart->next && memPart->next->free;
+
+    if (!(prevFree || nextFree)) {
+        pushCustomHeap(memPart);
+        return;
     }
+    if (!nextFree) {
+        memPart->prev->size += memPart->size;
+        flowUp(memPart->prev->pos);
+        memPart->remove();
+        delete memPart;
+        return;
+    }
+    if (!prevFree) {
+        memPart->next->size += memPart->size;
+        memPart->next->start = memPart->start;
+        flowUp(memPart->next->pos);
+        memPart->remove();
+        delete memPart;
+        return;
+    }
+
+    memPart->prev->size += memPart->next->size;
+    MemPart *ne = memPart->next;
+    memPart->next->remove();
+    deleteElemFromHeap(ne);
+    memPart->prev->size += memPart->size;
+    flowUp(memPart->prev->pos);
+    memPart->remove();
+    delete memPart;
 }
 
 int main() {
@@ -230,8 +174,8 @@ int main() {
     vector<MemPart *> usedMem(numOfOrd, nullptr);
     CustomHeap customHeap;
 
-    MemPart *all = new MemPart(true, 0, memorySize);
-    customHeap.addElemToHeap(all);
+    MemPart *all = new MemPart(true, 0, memorySize, nullptr, nullptr);
+    customHeap.pushCustomHeap(all);
 
     for (int i = 0; i < numOfOrd; ++i) {
 
@@ -243,21 +187,17 @@ int main() {
                 MemPart *mem = customHeap.heapData[0];
                 if (mem->size >= order) {
 
-                    usedMem[i] = new MemPart(false, mem->start, order);
+                    MemPart *memPointer = new MemPart(false, mem->start, order, mem->prev, mem);
+                    usedMem[i] = memPointer;
 
-                    MemPart *memPointer = usedMem[i];
-
-                    linkingMemParts(mem->prev, memPointer);
-
-                    mem->prev = memPointer;
-
-                    if (mem->size == order) {
-                        linkingMemParts(memPointer, mem->next);
+                    mem->start += order;
+                    mem->size -= order;
+                    if (mem->size == 0) {
+                        mem->remove();
+                        customHeap.deleteElemFromHeap(mem);
                     } else {
-                        memPointer->next = mem;
+                        customHeap.flowDown(mem->pos);
                     }
-
-                    customHeap.upgradeElemInHeap(mem, order);
 
                     printf("%d\n", memPointer->start + 1);
                     continue;
