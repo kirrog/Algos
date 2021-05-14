@@ -22,7 +22,7 @@ int main(){
 
     size_t res = 0;
     size_t endTime = P;
-    map<size_t, size_t, std::greater<>> cur_machines_by_time;
+    map<size_t, size_t, std::greater<std::size_t>> cur_machines_by_time;
     unordered_map<size_t, size_t> cur_machines_with_time;
     for(auto m : machines) {
         auto it = cur_machines_with_time.find(m);
