@@ -4,7 +4,8 @@
 #include <map>
 
 using namespace std;
-int main(){
+
+int main() {
 
     size_t N, K, P;
     cin >> N >> K >> P;
@@ -24,21 +25,21 @@ int main(){
     size_t endTime = P;
     map<size_t, size_t, std::greater<std::size_t>> cur_machines_by_time;
     unordered_map<size_t, size_t> cur_machines_with_time;
-    for(auto m : machines) {
+    for (auto m : machines) {
         auto it = cur_machines_with_time.find(m);
-        if (it == cur_machines_with_time.end())
-        {
+        if (it == cur_machines_with_time.end()) {
             res++;
-            if (cur_machines_by_time.size() == K)
-            {
+//            for (int j = 1; j < index.size(); ++j) {
+//                printf("%d ", index[j]);
+//            }
+//            printf("\n");
+            if (cur_machines_by_time.size() == K) {
                 auto it_to_del = cur_machines_by_time.begin();
                 auto machine_to_del = it_to_del->second;
                 cur_machines_by_time.erase(it_to_del);
                 cur_machines_with_time.erase(machine_to_del);
             }
-        }
-        else
-        {
+        } else {
             cur_machines_by_time.erase(it->second);
         }
         auto i = ++index[m];
@@ -48,6 +49,7 @@ int main(){
 //        for(auto cm : cur_machines_with_time)
 //            cout << cm.first << ' ';
 //        cout << endl;
+
     }
 
     cout << res;

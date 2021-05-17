@@ -1,8 +1,13 @@
 
 #include <iostream>
 #include <vector>
+#include <map>
+#include <unordered_map>
 
 using namespace std;
+
+typedef int car;
+typedef int pos;
 
 int main() {
     int cars;
@@ -17,51 +22,57 @@ int main() {
     if (cars > floorSize) {
         if (orderNum > floorSize) {
 
-            vector<int> floor(floorSize, 0);
             vector<int> allCars(orderNum);
             vector<vector<int>> orderOfCars(cars);
-            vector<int> numOfOrder(cars, 0);
+            vector<int> iterOfOrder(cars, 0);
 
             for (int i = 0; i < orderNum; ++i) {
-                int car;
-                cin >> car;
-                allCars[i] = car;
-                orderOfCars[car - 1].push_back(i);
+                int carNum;
+                cin >> carNum;
+                allCars[i] = carNum;
+                orderOfCars[carNum - 1].push_back(i);
             }
 
-            for (int i = 0; i < orderNum; ++i) {
-                int car = allCars[i];
+            map<pos, car, greater<pos>> floorCarsOrdered; // first - pos, second - car
+            unordered_map<car, pos> floorCars;
 
-                int farrest = -1;
-                int farrestPos = -1;
-                bool found = false;
-                for (int j = 0; j < floorSize; ++j) {
-                    if (floor[j] == 0) {
-                        floor[j] = car;
-                        numOfOrder[floor[j] - 1]++;
-                        found = true;
-                        result++;
-                        break;
-                    } else {
-                        if (floor[j] == car) {
-                            found = true;
-                            numOfOrder[floor[j] - 1]++;
-                            break;
-                        }
-                        if (numOfOrder[floor[j] - 1] != orderOfCars[floor[j] - 1].size() && farrestPos < orderOfCars[floor[j] - 1][numOfOrder[floor[j] - 1]]) {
-                            farrestPos = orderOfCars[floor[j] - 1][numOfOrder[floor[j] - 1]];
-                            farrest = j;
-                        } else if(numOfOrder[floor[j] - 1] == orderOfCars[floor[j] - 1].size()){
-                            farrestPos = orderNum;
-                            farrest = j;
-                        }
-                    }
-                }
-                if (!found) {
-                    floor[farrest] = car;
-                    numOfOrder[car - 1]++;
+            int diff = 0;
+
+            for (int i = 0; i < orderNum; ++i) {
+                car carNum = allCars[i];
+
+                auto changeableCar = floorCars.find(carNum);
+
+                if (changeableCar == floorCars.end()) {// didn't find this carNum
                     result++;
+//                    for (int j = 0; j < iterOfOrder.size(); ++j) {
+//                        printf("%d ", iterOfOrder[j]);
+//                    }
+//                    printf("\n");
+                    if (floorCarsOrdered.size() == floorSize) {// floor is full
+                        auto pairDel = floorCarsOrdered.begin();
+                        pos p = pairDel->first;
+                        car c = pairDel->second;
+                        floorCarsOrdered.erase(p);
+                        floorCars.erase(c);
+                    }
+                } else {
+                    floorCarsOrdered.erase(changeableCar->second);
                 }
+
+                int index = ++iterOfOrder[carNum - 1];
+                pos posNextCar;
+
+                if (index >= orderOfCars[carNum - 1].size()) {
+                    posNextCar = (orderNum + (diff++));// pos higher than any other
+                } else {
+                    posNextCar = orderOfCars[carNum - 1][index];
+                }
+                // adding next car at floor
+                floorCarsOrdered[posNextCar] = carNum;
+                floorCars[carNum] = posNextCar;
+
+
             }
         } else {
             result = orderNum;
