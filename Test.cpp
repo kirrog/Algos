@@ -2,27 +2,17 @@
 #include <iostream>
 
 
-int powerOfNumber(int num) {
-    int size = num;
-    int pow = 0;
-    while (size > 0) {
-        size = size >> 1;
-        pow++;
-    }
-    if (num << 1 == 1 << pow) {
-        pow--;
-    }
-    return pow;
-}
-
-
 int main() {
 
-    for (int j = 2; j < 128; ++j) {
-        printf("%d ", j);
-        printf("%d\n", powerOfNumber(j));
+    int res = 0;
+    for (int i = 1; i <= 6; ++i) {
+        for (int j = 1; j <= 6; ++j) {
+            if ((j + i) % 3 == 0) {
+                res++;
+            }
+        }
     }
 
 
-    return 0;
+    return res;
 }
