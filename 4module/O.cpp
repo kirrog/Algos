@@ -46,7 +46,15 @@ int main() {
         pupils[r].neighbors.insert(&pupils[l]);
     }
 
-    if (paintNodes(pupils, &pupils[0], true)) {
+    bool check = true;
+
+    for (int i = 0; i < pupils.size() && check; ++i) {
+        if(!pupils[i].checked){
+            check &= paintNodes(pupils, &pupils[i], true);
+        }
+    }
+
+    if (check) {
         printf("YES\n");
     } else {
         printf("NO\n");
