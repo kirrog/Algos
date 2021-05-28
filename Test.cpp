@@ -4,15 +4,15 @@
 
 int main() {
 
-    int res = 0;
-    for (int i = 1; i <= 6; ++i) {
-        for (int j = 1; j <= 6; ++j) {
-            if ((j + i) % 3 == 0) {
-                res++;
+    int res = 9;
+    for (int i = 1; i < res + 1; ++i) {
+        for (int j = 1; j < res + 1; ++j) {
+            if (i < j) {
+                printf("%d %d\n", i, j);
             }
         }
     }
 
 
-    return res;
+    return 0;
 }
