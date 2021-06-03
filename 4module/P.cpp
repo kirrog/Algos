@@ -9,26 +9,20 @@ struct Airport {
     vector<bool> ability;
 };
 
-void checkOutAirport(vector<Airport> &airports, int airportNum, int maxDist) {
+void checkOutAirport(vector<Airport> &airports, int airportNum) {
     airports[airportNum].checked = true;
     for (int i = 0; i < airports.size(); ++i) {
-        int airDist = airports[airportNum].airlines[i];
-        if (airDist && airDist <= maxDist) {
-            if (!airports[i].checked) {
-                checkOutAirport(airports, i, maxDist);
-            }
+        if (airports[airportNum].ability[i] && !(airports[i].checked)) {
+            checkOutAirport(airports, i);
         }
     }
 }
 
-void checkInAirport(vector<Airport> &airports, int airportNum, int maxDist) {
+void checkInAirport(vector<Airport> &airports, int airportNum) {
     airports[airportNum].checked = true;
     for (int i = 0; i < airports.size(); ++i) {
-        int airportDistance = airports[i].airlines[airportNum];
-        if (airportDistance && airportDistance <= maxDist) {
-            if (!airports[i].checked) {
-                checkInAirport(airports, i, maxDist);
-            }
+        if (airports[i].ability[airportNum] && !(airports[i].checked)) {
+            checkInAirport(airports, i);
         }
     }
 }
@@ -63,29 +57,30 @@ int main() {
         airports[i].airlines.resize(size);
         airports[i].ability.resize(size);
         for (int j = 0; j < size; ++j) {
-            int airportDistance;
-            cin >> airportDistance;
-            if (airportDistance > right) {
-                right = airportDistance;
+            int airDist;
+            cin >> airDist;
+            if (airDist > right) {
+                right = airDist;
             }
-            if (airportDistance && airportDistance < left) {
-                left = airportDistance;
+            if (airDist && airDist < left) {
+                left = airDist;
             }
-            airports[i].airlines[j] = airportDistance;
+            airports[i].airlines[j] = airDist;
         }
     }
 
     while (left < right) {
         int middle = (left + right) / 2;
+        setAbility(airports, middle);
         uncheckAirports(airports);
-        checkInAirport(airports, 0, middle);
+        checkInAirport(airports, 0);
         bool checked = true;
         for (int i = 0; (i < size) && checked; ++i) {
             checked &= airports[i].checked;
         }
         if (checked) {
             uncheckAirports(airports);
-            checkOutAirport(airports, 0, middle);
+            checkOutAirport(airports, 0);
             for (int i = 0; (i < size) && checked; ++i) {
                 checked &= airports[i].checked;
             }
