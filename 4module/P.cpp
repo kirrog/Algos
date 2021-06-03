@@ -50,8 +50,8 @@ int main() {
         return 0;
     }
     vector<Airport> airports(size);
-    int left = INT32_MAX;
-    int right = 0;
+    int left = 0;
+    int right = INT32_MAX;
 
     for (int i = 0; i < size; ++i) {
         airports[i].airlines.resize(size);
@@ -59,12 +59,6 @@ int main() {
         for (int j = 0; j < size; ++j) {
             int airDist;
             cin >> airDist;
-            if (airDist > right) {
-                right = airDist;
-            }
-            if (airDist && airDist < left) {
-                left = airDist;
-            }
             airports[i].airlines[j] = airDist;
         }
     }
