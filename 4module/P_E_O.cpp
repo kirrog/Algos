@@ -1,7 +1,5 @@
 #include <cstring>
-#include <iostream>
-
-using namespace std;
+#include <fstream>
 
 #define MAX 1010
 
@@ -24,10 +22,13 @@ int AllVisited() {
 }
 
 int main() {
-    cin >> n;
+    std::ifstream file("avia.in");
+    std::string s;
+    getline(file, s);
+    n = std::atoi(s.c_str());
     for (int i = 0; i < n; i++) {
         for (int j = 0; j < n; j++) {
-            cin >> graph[i][j];
+            file >> graph[i][j];
         }
     }
     int L = 0;
@@ -52,6 +53,7 @@ int main() {
         else
             L = Mid + 1;
     }
-    cout << L;
+    std::ofstream file1("avia.out");
+    file1 << L;
     return 0;
 }
