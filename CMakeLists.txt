@@ -4,4 +4,4 @@ project(Algos)
 set(CMAKE_CXX_STANDARD 11)
 
 #add_executable(Algos  Test.cpp)
-add_executable(Algos  4module/T1806.cpp)
+add_executable(Algos  4module/T1162.cpp)
