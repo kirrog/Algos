@@ -12,7 +12,7 @@ struct Solder {
     bool front = false;
     int time = 0;
     bool checked = false;
-    vector<int> number;
+    vector<char> number;
 };
 
 int communicateCost(Solder a, Solder b) {
@@ -72,7 +72,7 @@ bool finding(vector<vector<int>> &differs, vector<Solder> &solders) {
     front.push_back(&solders[0]);
     solders[0].front = true;
     int frontSize = 1;
-    while (!solders[solders.size()-1].checked && frontSize) {
+    while (!solders[solders.size() - 1].checked && frontSize) {
         auto iter = front.begin();
         Solder *solder = (*iter);
 
@@ -89,7 +89,7 @@ bool finding(vector<vector<int>> &differs, vector<Solder> &solders) {
             }
         }
     }
-    return (solders[solders.size()-1].checked);
+    return (solders[solders.size() - 1].checked);
 }
 
 int main() {
@@ -117,8 +117,8 @@ int main() {
         differs[i].resize(soldersSize, -1);
     }
     for (int i = 0; i < soldersSize; ++i) {
-        for (int j = 0; j < soldersSize; ++j) {
-            if (i != j && (differs[i][j] == -1)) {
+        for (int j = i + 1; j < soldersSize; ++j) {
+            if (differs[i][j] == -1) {
                 int diff = communicateCost(solders[i], solders[j]);
                 if (diff > -1) {
                     differs[i][j] = times[diff];
@@ -142,13 +142,13 @@ int main() {
 
 
         cout << (solders[soldersSize - 1].time) << endl;
-        cout << resultSize << endl;
+        cout << resultSize << endl;//
         for (auto item:order) {
             cout << (item + 1) << " ";
         }
         cout << endl;
     } else {
-        cout << -1;
+        cout << -1 << endl;
     }
 
 
