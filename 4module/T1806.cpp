@@ -18,7 +18,7 @@ struct Solder {
     int time = 0;
     bool checked = false;
     long long number;
-    list<pair<int, Solder *>> neighbors;
+    unordered_map<Solder *, int> neighbors;
 };
 
 long long changePos(long long numOld, int firPos, int secPos) {
@@ -29,17 +29,11 @@ long long changePos(long long numOld, int firPos, int secPos) {
     num -= sec * powNum[secPos];
     num += fir * powNum[secPos];
     num += sec * powNum[firPos];
-    if (numOld == num) {
-        return -1;
-    }
     return num;
 }
 
 long long changeNum(long long num, int pos, int n) {
     int fir = (num / (powNum[pos])) % 10;
-    if (fir == n) {
-        return -1;
-    }
     num -= fir * powNum[pos];
     num += n * powNum[pos];
     return num;
@@ -51,21 +45,21 @@ void findNeighbours(Solder *solder, unordered_map<long long, Solder *> &map, vec
     for (int i = 0; i < 10; ++i) {
         for (int j = 0; j < 10; ++j) {
             long long res = changeNum(number, i, j);
-            if (res != -1) {
+            if (res != number) {
                 auto item = map.find(res);
                 if (item != map.end()) {
-                    solder->neighbors.push_front(make_pair(times[i], item->second));
-                    item->second->neighbors.push_front(make_pair(times[i], solder));
+                    solder->neighbors.insert(make_pair(item->second, times[i]));
+                    item->second->neighbors.insert(make_pair(solder, times[i]));
                 }
             }
         }
         for (int j = i + 1; j < 10; ++j) {
             long long res = changePos(number, i, j);
-            if (res != -1) {
+            if (res != number) {
                 auto item = map.find(res);
                 if (item != map.end()) {
-                    solder->neighbors.push_front(make_pair(times[min(i, j)], item->second));
-                    item->second->neighbors.push_front(make_pair(times[min(i, j)], solder));
+                    solder->neighbors.insert(make_pair(item->second, times[i]));
+                    item->second->neighbors.insert(make_pair(solder, times[i]));
                 }
             }
         }
@@ -115,8 +109,8 @@ bool finding(vector<Solder> &solders) {
         solder->checked = true;
 
         for (auto neighbor:solder->neighbors) {
-            int dist = neighbor.first;
-            if (addElem(front, dist, neighbor.second, solder)) frontSize++;
+            int dist = neighbor.second;
+            if (addElem(front, dist, neighbor.first, solder)) frontSize++;
         }
     }
     return (solders[solders.size() - 1].checked);
@@ -148,20 +142,19 @@ int main() {
     }
 
     if (finding(solders)) {
-        deque<int> order;
+        vector<int> order(soldersSize);
         int resultSize = 0;
 
         Solder *iter = &solders[soldersSize - 1];
         while (iter) {
-            order.push_front(iter->num);
-            resultSize++;
+            order[resultSize++] = (iter->num);
             iter = iter->prev;
         }
 
         cout << (solders[soldersSize - 1].time) << endl;
         cout << resultSize << endl;
-        for (auto item:order) {
-            cout << (item + 1) << " ";
+        for (int i = resultSize - 1; i >= 0; i--) {
+            cout << (order[i] + 1) << " ";
         }
         cout << endl;
     } else {
