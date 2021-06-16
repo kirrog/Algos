@@ -54,8 +54,8 @@ void findNeighbours(Solder *solder, unordered_map<long long, Solder *> &map, vec
             if (res != -1) {
                 auto item = map.find(res);
                 if (item != map.end()) {
-                    solder->neighbors.push_front(make_pair(times[min(i, j)], item->second));
-                    item->second->neighbors.push_front(make_pair(times[min(i, j)], solder));
+                    solder->neighbors.push_front(make_pair(times[i], item->second));
+                    item->second->neighbors.push_front(make_pair(times[i], solder));
                 }
             }
         }
@@ -114,9 +114,9 @@ bool finding(vector<Solder> &solders) {
 
         solder->checked = true;
 
-        for (auto iter:solder->neighbors) {
-            int dist = iter.first;
-            if (addElem(front, dist, iter.second, solder)) frontSize++;
+        for (auto neighbor:solder->neighbors) {
+            int dist = neighbor.first;
+            if (addElem(front, dist, neighbor.second, solder)) frontSize++;
         }
     }
     return (solders[solders.size() - 1].checked);

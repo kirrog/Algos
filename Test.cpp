@@ -1,17 +1,17 @@
 //2module/E.cpp
 #include <iostream>
+#include <unordered_map>
 
 
 int main() {
 
-    int res = 9;
-    for (int i = 1; i < res + 1; ++i) {
-        for (int j = 1; j < res + 1; ++j) {
-            if (i < j) {
-                printf("%d %d\n", i, j);
-            }
-        }
+    std::unordered_map<long long, int> unorderedMap;
+
+    for (int i = 0; i < 1000; ++i) {
+        unorderedMap.insert(std::make_pair(i, i));
     }
+
+    printf("%d", unorderedMap.begin()->first);
 
 
     return 0;
