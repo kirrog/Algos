@@ -1,6 +1,3 @@
-//313607NJ - KR
-//313875AL - VTALGOKR
-
 
 #include "iostream"
 #include <algorithm>
